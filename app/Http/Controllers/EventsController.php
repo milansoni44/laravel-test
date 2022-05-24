@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\EventResource;
 use App\Models\Event;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -102,9 +103,7 @@ class EventsController extends BaseController
 
         if( $events->count() )
         {
-            return response()->json([
-                EventResource::collection($events)
-            ], 200);
+            return response()->json(EventResource::collection($events), 200);
         }
 
         throw new \Exception('implement in coding task 1');
@@ -186,6 +185,18 @@ class EventsController extends BaseController
      */
 
     public function getFutureEventsWithWorkshops() {
+        $futureEvents = Event::query()->with(['workshops' => function($query){
+            return $query->where('start', '>=', Carbon::now()->toDateTime());
+        }])
+        ->whereHas('workshops', function($query){
+            return $query->where('start', '>=', Carbon::now()->toDateTime());
+        })->skip(0)->take(2)->get();
+
+        if( $futureEvents->count() )
+        {
+            return response()->json(EventResource::collection($futureEvents), 200);
+        }
+
         throw new \Exception('implement in coding task 2');
     }
 }
