@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\EventResource;
 use App\Models\Event;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -97,6 +98,15 @@ class EventsController extends BaseController
      */
 
     public function getEventsWithWorkshops() {
+        $events = Event::query()->with(['workshops'])->get();
+
+        if( $events->count() )
+        {
+            return response()->json([
+                EventResource::collection($events)
+            ], 200);
+        }
+
         throw new \Exception('implement in coding task 1');
     }
 
